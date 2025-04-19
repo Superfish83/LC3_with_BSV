@@ -1,0 +1,25 @@
+# LC-3 with BSV
+**This project implements LC-3, a simple 16-bit computer architecture, with Bluespec.**
+
+LC-3: https://en.wikipedia.org/wiki/Little_Computer_3
+This is a project made for studying computer architecture.
+
+Dept. of Computer Science and Engineering, Seoul National University  
+Kim Yeonjun, Lim Junseo
+{ kyjun0803@snu.ac.kr, zirajs@snu.ac.kr }
+
+## How to build the processor and testbench
+
+  
+
+    $ bash build.sh
+
+  
+
+## How to run testbench simulation
+
+  
+
+    $ bash run.sh
+
+  
