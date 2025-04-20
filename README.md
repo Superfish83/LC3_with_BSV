@@ -1,7 +1,7 @@
 # LC-3 with Bluespec
 ## This project implements LC-3, a simple 16-bit computer architecture, with Bluespec(bsv).
 
-** LC-3: https://en.wikipedia.org/wiki/Little_Computer_3 **
+**LC-3: https://en.wikipedia.org/wiki/Little_Computer_3**
 
 This is a project made for studying computer architecture.
 
