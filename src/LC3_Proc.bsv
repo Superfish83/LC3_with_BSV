@@ -99,7 +99,7 @@ module mkLC3_Proc(LC3_Proc);
         pc <= pc + 1;
     endrule
 
-    method Action hostToCpu(Addr startAddr);
+    method Action hostToCpu(Addr startAddr) if (!running);
         pc <= startAddr;
         running <= True;
     endmethod

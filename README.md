@@ -10,16 +10,13 @@ Kim Yeonjun, Lim Junseo
 
 ## How to build the processor and testbench
 
+    $ bash build.sh sim         -> Build for simulation
+    $ bash build.sh verilog     -> Compile to Verilog files
+
   
-
-    $ bash build.sh
-
-  
-
 ## How to run testbench simulation
 
-  
 
-    $ bash run.sh
+    $ bash build.sh run
 
   
