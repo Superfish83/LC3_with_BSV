@@ -17,8 +17,8 @@ https://github.com/B-Lang-org/bsc
 
 You may refer to the installation guide on our blog.
 
-https://blog.yeonjun.kr/post/44 (English)
-https://blog.yeonjun.kr/post/43 (Korean)
+- https://blog.yeonjun.kr/post/44 (English)
+- https://blog.yeonjun.kr/post/43 (Korean)
 
 ## How to build the processor and testbench
 
