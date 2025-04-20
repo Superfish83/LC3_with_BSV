@@ -71,7 +71,7 @@ interface LC3_Proc;
     method Action hostToCpu(Addr startAddr);
     method ActionValue#(CpuToHost) cpuToHost;
 endinterface: LC3_Proc
-typedef enum { ExitCode, PrintChar, PrintInt }
+typedef enum { ExitCode, PrintChar, PrintInt, PrintHex }
 CpuToHostType deriving (Bits, Eq);
 typedef struct {
     CpuToHostType c2hType;
@@ -106,7 +106,7 @@ module mkLC3_Proc(LC3_Proc);
     method ActionValue#(CpuToHost) cpuToHost();
         if (pc < 'h3012) begin
             CpuToHost c2h = ?;
-            c2h.c2hType = PrintInt;
+            c2h.c2hType = PrintHex;
             c2h.data = pc;
             return c2h;
         end

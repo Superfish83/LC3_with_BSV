@@ -23,9 +23,13 @@ module mkTestBench(Empty);
         CpuToHost c2h <- proc.cpuToHost;
         case (c2h.c2hType)
             PrintInt: begin
-                $display("CPU: %x", c2h.data);
+                $display("CPU called PrintInt: %d", c2h.data);
+            end
+            PrintHex: begin
+                $display("CPU called PrintHex: %x", c2h.data);
             end
             ExitCode: begin
+                $display("CPU called ExitCode. Quitting...");
                 tState <= End;
             end
         endcase
