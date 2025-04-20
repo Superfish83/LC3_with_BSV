@@ -4,10 +4,11 @@
 
 package LC3_Proc;
 
+// Define type of Address and Word
 typedef Bit#(16)    Addr;
 typedef Bit#(16)    Word;
 
-// Instruction Types
+// Define types related to instructions
 typedef Bit#(16)    Inst;
 typedef Bit#(4)     Opcode;
 typedef Bit#(3)     RIndx;
@@ -19,7 +20,7 @@ typedef struct {
     Maybe#(Offset6) offset;
 } DecodedInst deriving (Bits, Eq);
 
-// * LC-3 Opcodes *
+// Define LC-3 Opcodes
 //  - Arithmetic & Logic
 Opcode opAdd    = 4'b0001;
 Opcode opAnd    = 4'b0101;
