@@ -12,9 +12,15 @@
  *     ...
  *   endrule;
  * endmodule;
- * 
- * initialization:  // TODO
- *  - iMem.load("file_name")
+ *
+ * module mkTb();
+ *   IMemory iMem <- mkIMemoryF("filepath.vmh");
+ *   ...
+ *   rule doTb;
+ *     let inst = iMem.req(pc);
+ *     ...
+ *   endrule;
+ * endmodule;
  * 
  */
  
