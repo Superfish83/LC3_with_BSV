@@ -9,6 +9,17 @@ Dept. of Computer Science and Engineering, Seoul National University
 Kim Yeonjun, Lim Junseo
 { kyjun0803@snu.ac.kr, zirajs@snu.ac.kr }
 
+## Requirements
+
+To compile and test our LC-3 implementation, you need to have the Bluespec compiler (bsc) installed on your machine.
+
+https://github.com/B-Lang-org/bsc
+
+You may refer to the installation guide on our blog.
+
+https://blog.yeonjun.kr/post/44 (English)
+https://blog.yeonjun.kr/post/43 (Korean)
+
 ## How to build the processor and testbench
 
     $ bash build.sh sim         -> Build for simulation
