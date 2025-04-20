@@ -1,6 +1,7 @@
 package TestBench;
 
 import LC3_Proc::*;
+import LC3_ProcTypes::*;
 
 typedef enum {Init, Run, End}
 TestState deriving (Bits, Eq);
