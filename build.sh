@@ -12,6 +12,7 @@ then
 else
     base=../build
     bdir=${base}/bdir
+    libdir=../lib
 
     if [ "$1" = "sim" ];
     then
@@ -25,8 +26,8 @@ else
         mkdir -p ${bindir}
         mkdir -p ${simdir}
 
-        bsc -u -sim -aggressive-conditions -simdir ${simdir} -bdir ${bdir} ./TestBench.bsv
-        bsc -u -sim -aggressive-conditions -simdir ${simdir} -bdir ${bdir} -o ${bindir}/bsim -e mkTestBench
+        bsc -u -sim -aggressive-conditions -simdir ${simdir} -p +:${libdir} -bdir ${bdir} ./TestBench.bsv
+        bsc -u -sim -aggressive-conditions -simdir ${simdir} -p ${libdir}:+ -bdir ${bdir} -o ${bindir}/bsim -e mkTestBench
         
         echo "";
         echo "[build.sh] Build complete! Enter 'bash build.sh run' to run simulation."

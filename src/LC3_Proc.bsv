@@ -4,42 +4,9 @@
 
 package LC3_Proc;
 
-// Define type of Address and Word
-typedef Bit#(16)    Addr;
-typedef Bit#(16)    Word;
+import IMemory :: *;
+import LC3_ProcTypes::*;
 
-// Define types related to instructions
-typedef Bit#(16)    Inst;
-typedef Bit#(4)     Opcode;
-typedef Bit#(3)     RIndx;
-typedef Bit#(6)     Offset6;
-typedef struct {
-    Opcode opcode;
-    Maybe#(RIndx) dst;
-    Maybe#(RIndx) src1;
-    Maybe#(Offset6) offset;
-} DecodedInst deriving (Bits, Eq);
-
-// Define LC-3 Opcodes
-//  - Arithmetic & Logic
-Opcode opAdd    = 4'b0001;
-Opcode opAnd    = 4'b0101;
-Opcode opNot    = 4'b1001;
-//  - Control
-Opcode opBr     = 4'b0000;
-Opcode opJmp    = 4'b1100;
-Opcode opJsr    = 4'b0100;
-Opcode opRet    = 4'b1100;
-Opcode opRti    = 4'b1000;
-Opcode opTrap   = 4'b1111;
-//  - Load/Store
-Opcode opLd     = 4'b0010;
-Opcode opLdi    = 4'b1010;
-Opcode opLdr    = 4'b0110;
-Opcode opLea    = 4'b1110;
-Opcode opSt     = 4'b0011;
-Opcode opSti    = 4'b0011;
-Opcode opStr    = 4'b0011;
 
 function DecodedInst decodeInst(Bit#(16) inst, Addr pc);
     let opcode  = inst[15:12];
@@ -71,26 +38,22 @@ interface LC3_Proc;
     method Action hostToCpu(Addr startAddr);
     method ActionValue#(CpuToHost) cpuToHost;
 endinterface: LC3_Proc
-typedef enum { ExitCode, PrintChar, PrintInt, PrintHex }
-CpuToHostType deriving (Bits, Eq);
-typedef struct {
-    CpuToHostType c2hType;
-    Bit#(16) data;
-} CpuToHost deriving (Bits, Eq);
 
 
 (* synthesize *)
 module mkLC3_Proc(LC3_Proc);
-    Reg#(Bool) running <- mkReg(False);
-    Reg#(Addr) pc <- mkRegU;
+    Reg#(Bool)      running <- mkReg(False);
+    Reg#(Addr)      pc      <- mkRegU;
+    IMemory         iMem    <- mkIMemoryF("../sample_programs/add.vmh");
     /*
     RFile       rf <- mkRFile;
-    IMemory     iMem <- mkIMemory;
     DMemory     dMem <- mkDMemory;*/
 
     rule doProc (running);
-        /*
         let inst = iMem.req(pc);
+        // check imem
+        $display("mem: %b", iMem.req(pc));
+        /*
         let dInst = decodeInst(inst, pc);
         let rVal1 = rf.rd1(dInst.src1);
         let rVal2 = rf.rd2(dInst.src2);
