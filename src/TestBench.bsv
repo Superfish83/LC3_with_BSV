@@ -14,23 +14,21 @@ module mkTestBench(Empty);
     Reg#(TestState) tState <- mkReg(Init);
     
     rule initTest (tState == Init);
-        proc.hostToCpu('h3000);
+        proc.hostToCpu(16'h3000);
         tState <= Run;
     endrule
 
     rule runTest (tState == Run);
-        $display("[TestBench] cycle %d", cycle);
+        // For debugging, uncomment this to check testbench clock cycle 
+        //$display("[TestBench] cycle %d", cycle);
 
         CpuToHost c2h <- proc.cpuToHost;
         case (c2h.c2hType)
-            PrintInt: begin
-                $display("CPU called PrintInt: %d", c2h.data);
+            TV_OUT: begin
+                $display("CPU called OUT: x%x", c2h.data);
             end
-            PrintHex: begin
-                $display("CPU called PrintHex: %x", c2h.data);
-            end
-            ExitCode: begin
-                $display("CPU called ExitCode. Quitting...");
+            TV_HALT: begin
+                $display("CPU called HALT. Quitting...");
                 tState <= End;
             end
         endcase

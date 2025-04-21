@@ -4,34 +4,11 @@
 
 package LC3_Proc;
 
-import IMemory :: *;
+import IMemory::*;
+import RFile::*;
 import LC3_ProcTypes::*;
-
-
-function DecodedInst decodeInst(Bit#(16) inst, Addr pc);
-    let opcode  = inst[15:12];
-    let rd      = inst[11:9];
-    let rs1     = inst[8:6];
-    let offset  = inst[5:0];
-
-    let immFlag = inst[5];
-    let imm5    = inst[4:0];
-    let rs2     = inst[2:0];
-
-    // Decode result (initially undefined)
-    DecodedInst dInst = ?;
-    case(opcode)
-        opAdd: begin
-            // ...
-        end
-        default: begin
-            // ...
-        end
-    endcase
-
-    return dInst;
-endfunction
-
+import Decode::*;
+import Execute::*;
 
 
 interface LC3_Proc;
@@ -39,26 +16,43 @@ interface LC3_Proc;
     method ActionValue#(CpuToHost) cpuToHost;
 endinterface: LC3_Proc
 
-
 (* synthesize *)
 module mkLC3_Proc(LC3_Proc);
     Reg#(Bool)      running <- mkReg(False);
     Reg#(Addr)      pc      <- mkRegU;
     IMemory         iMem    <- mkIMemoryF("../sample_programs/add.vmh");
-    /*
-    RFile       rf <- mkRFile;
-    DMemory     dMem <- mkDMemory;*/
+    RFile           rFile   <- mkRFile();
+    /* DMemory      dMem    <- mkDMemory;*/
+
+    Reg#(CpuToHost) c2h     <- mkReg(CpuToHost { c2hType: NO_SIGNAL, data: ? });
 
     rule doProc (running);
+        // (1)  Fetch
         let inst = iMem.req(pc);
-        // check imem
-        $display("mem: %b", iMem.req(pc));
-        /*
-        let dInst = decodeInst(inst, pc);
-        let rVal1 = rf.rd1(dInst.src1);
-        let rVal2 = rf.rd2(dInst.src2);
-        let eInst = exec(dInst, rVal1, rVal2, pc);
-        */
+
+        // DEBUG: Check memory value at pc
+        $display("Mem[pc=x%x]: %b", pc, iMem.req(pc));
+
+        // (2)  Decode
+        DecodedInst dInst = decode(inst, pc);
+        //      Read source registers
+        dInst.val1 = isValid(dInst.rs1) ?
+            tagged Valid rFile.read1(fromMaybe(?, dInst.rs1)) :
+            tagged Invalid;
+        dInst.val2 = isValid(dInst.rs2) ?
+            tagged Valid rFile.read2(fromMaybe(?, dInst.rs2)) :
+            dInst.val3;
+
+        // (3)  Execute
+        let execResult = execute(dInst);
+        c2h <= execResult.c2h;
+
+        // (5)  Write back
+        if(isValid(execResult.writeVal)) begin
+            rFile.write(fromMaybe(?, dInst.rd), fromMaybe(?, execResult.writeVal));
+        end
+
+        // (6)  Update PC
         pc <= pc + 1;
     endrule
 
@@ -67,17 +61,7 @@ module mkLC3_Proc(LC3_Proc);
         running <= True;
     endmethod
     method ActionValue#(CpuToHost) cpuToHost();
-        if (pc < 'h3012) begin
-            CpuToHost c2h = ?;
-            c2h.c2hType = PrintHex;
-            c2h.data = pc;
-            return c2h;
-        end
-        else begin
-            CpuToHost c2h = ?;
-            c2h.c2hType = ExitCode;
-            return c2h;
-        end 
+        return c2h;
     endmethod
 endmodule: mkLC3_Proc
 
