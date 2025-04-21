@@ -20,7 +20,7 @@ endinterface: LC3_Proc
 module mkLC3_Proc(LC3_Proc);
     Reg#(Bool)      running <- mkReg(False);
     Reg#(Addr)      pc      <- mkRegU;
-    IMemory         iMem    <- mkIMemoryF("../sample_programs/add.vmh");
+    IMemory         iMem    <- mkIMemoryF("../programs/program.vmh");
     RFile           rFile   <- mkRFile();
     /* DMemory      dMem    <- mkDMemory;*/
 
