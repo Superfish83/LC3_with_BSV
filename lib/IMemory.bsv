@@ -52,7 +52,6 @@ module mkLC3IMemeoryFile#(parameter String file_name)(IMemory);
     endmethod
 endmodule: mkLC3IMemeoryFile
 
-
 module mkIMemory(IMemory);
     IMemory iMem <- mkLC3IMemeory;
 
@@ -63,6 +62,7 @@ module mkIMemory(IMemory);
 endmodule: mkIMemory
 
 (* synthesize *)
+// Make Memory File from vmh file, following LC-3 memory conventions
 module mkIMemoryF#(parameter String file_name)(IMemory);
     IMemory iMem <- mkLC3IMemeoryFile(file_name);
 

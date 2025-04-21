@@ -1,5 +1,0 @@
-// verilog hex memory file (.vmh)
-// adding 1 to zero at r1.
-5260    // and r1, r1, #0
-1261    // add r1, r1, #1
-f025    // HALT
