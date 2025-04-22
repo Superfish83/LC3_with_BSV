@@ -39,10 +39,6 @@ Opcode opSti    = 4'b1011;
 Opcode opStr    = 4'b0111;
 Opcode opTrap   = 4'b1111;
 
-// LC3 convention addresses
-Addr  lc3_ORIG  = 16'h3000;
-Addr  lc3_END   = 16'hFDFF;
-
 // CPU to Host type
 typedef enum { NO_SIGNAL, TV_GETC, TV_OUT, TV_PUTS, TV_IN, TV_HALT }
 CpuToHostType deriving (Bits, Eq);

@@ -1,10 +1,11 @@
 /*
-    Proc.bsv: The LC-3 Processor
+    LC3_Proc.bsv: The LC-3 ISA Processor
 */
 
 package LC3_Proc;
 
 import IMemory::*;
+import DMemory::*;
 import RFile::*;
 import LC3_ProcTypes::*;
 import Decode::*;
@@ -20,9 +21,9 @@ endinterface: LC3_Proc
 module mkLC3_Proc(LC3_Proc);
     Reg#(Bool)      running <- mkReg(False);
     Reg#(Addr)      pc      <- mkRegU;
-    IMemory         iMem    <- mkIMemoryF("../programs/program.vmh");
+    IMemory         iMem    <- mkIMemoryF("../memload/program.vmh");
+    DMemory         dMem    <- mkDMemoryF("../memload/data.vmh");
     RFile           rFile   <- mkRFile();
-    /* DMemory      dMem    <- mkDMemory;*/
 
     Reg#(CpuToHost) c2h     <- mkReg(CpuToHost { c2hType: NO_SIGNAL, data: ? });
 
@@ -46,6 +47,9 @@ module mkLC3_Proc(LC3_Proc);
         // (3)  Execute
         let execResult = execute(dInst);
         c2h <= execResult.c2h;
+
+        // (4)  Memory operation
+        // (todo)
 
         // (5)  Write back
         if(isValid(execResult.writeVal)) begin
