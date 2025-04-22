@@ -10,7 +10,7 @@
 package IMemory;
 
 import RegFile::*;
-import LC3_ProcTypes::*;
+import LC3_Types::*;
 import MemoryTypes::*;
 
 interface IMemory;

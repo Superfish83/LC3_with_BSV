@@ -10,8 +10,7 @@
 package DMemory;
 
 import RegFile :: * ;
-import LC3_ProcTypes::*;
-import MemoryTypes::*;
+import LC3_Types::*;
 
 interface DMemory;
     method ActionValue#(MemResponse) req(MemRequest reqData);
@@ -21,9 +20,9 @@ module mkDMemFromFile#(parameter String file_name)(DMemory);
     RegFile#(Addr, Data) mem <- mkRegFileLoad(file_name, lc3_DMem_ORIG, lc3_DMem_END);
 
     method ActionValue#(MemResponse) req(MemRequest reqData);
-        if(reqData.write) mem.upd(reqData.addr, reqData.data);
+        if(reqData.writeMem) mem.upd(reqData.addr, reqData.data);
         return MemResponse {
-            data: (reqData.write ? 0 : mem.sub(reqData.addr))
+            data: (reqData.writeMem ? 0 : mem.sub(reqData.addr))
         };
     endmethod
 endmodule: mkDMemFromFile
