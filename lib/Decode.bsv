@@ -62,13 +62,12 @@ function DecodedInst decode(Bit#(16) inst);
         end
 
         // Load & Store Instructions
-        // DR and SR is assigned to rs1, BaseR is assigned to rs2.
         opLd, opLdr, opLdi, opLea, opSt, opStr, opSti: begin
             dInst.rd = rd;  // DR (for ld, ldr, lea)
-            dInst.rs1 = rd; // SR (for st, str)
+            dInst.rs2 = rd; // SR (for st, str)
             case(opcode) // imm <- desired memory address
                 opLdr, opStr: begin
-                    dInst.rs2 = rs1; // BaseR
+                    dInst.rs1 = rs1; // BaseR
                     dInst.imm = signExtend(offset6); // offset from BaseR
                 end
                 default: dInst.imm = signExtend(offset9); // offset ... adding PC+1 is done on execution step.
