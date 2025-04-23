@@ -31,11 +31,18 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
         end
 
         // Control Instructions
+        opBr: begin
+            dInst.rd    = rd;  // the nzp value goes here.
+            dInst.rs1   = ?;  
+            dInst.rs2   = ?;
+            dInst.imm   = signExtend(offset9);
+        end
+
         opJmp: begin
             dInst.rd    = ?;
             dInst.rs1   = rs1;  // JMP destination
             dInst.rs2   = ?;
-            dInst.imm   = ?;
+            dInst.imm   = ?; 
         end
 
         opJsr: begin
@@ -46,13 +53,6 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
             dInst.imm   = jsrFlag==1 ? signExtend(offset11) : ?;
             dInst.immFlag = (jsrFlag==1);  // Abuse of variable. (Caused by limitation of LC3)
         end                                // Better to reorganize the decoding structure or use Maybe to check validity of rs1 in the execution stage.
-
-        opBr: begin
-            dInst.rd    = ?;
-            dInst.rs1   = rd;  // the nzp value goes here.
-            dInst.rs2   = ?;
-            dInst.imm   = signExtend(offset9);
-        end
 
         opTrap: begin
             dInst.rd    = ?;
