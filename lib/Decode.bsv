@@ -19,20 +19,19 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
     dInst.immFlag = (inst[5]==1);
 
     case(opcode)
-
         // Arithmetic & Logic Instructions
         opAdd, opAnd, opNot: begin
             dInst.rd    = rd;   // destination
             dInst.rs1   = rs1;  // source 1
             dInst.rs2   = rs2;  // source 2 (optional)
-            dInst.val3  = signExtend(imm5); // immediate (optional)
+            dInst.imm  = signExtend(imm5); // immediate (optional)
         end
 
         // Control Instructions
         //      * todo: BR, JMP, JSR, JSRR
         opTrap: begin
             dInst.rs1   = rs1;  // Always 0
-            dInst.val3[7:0] = extend(trapv); // Trapvect
+            dInst.imm[7:0] = extend(trapv); // Trapvect
         end
 
         // Load & Store Instructions
@@ -43,9 +42,9 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
             case(opcode) // val3 <- desired memory address
                 opLdr, opStr: begin
                     dInst.rs1 = rs1; // BaseR
-                    dInst.val3 = signExtend(offset6); // offset from BaseR
+                    dInst.imm = signExtend(offset6); // offset from BaseR
                 end
-                default: dInst.val3 = (pc+1) + signExtend(offset9); // pc+1 + offset
+                default: dInst.imm = (pc+1) + signExtend(offset9); // pc+1 + offset
             endcase
         end
         

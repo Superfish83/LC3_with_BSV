@@ -13,11 +13,16 @@ typedef struct {
     RIndx   rd;
     RIndx   rs1;
     RIndx   rs2;
-    Data    val1; // value of source register 1
-    Data    val2; // value of source register 2
-    Data    val3; // value of immediate or offset
+    Data    imm;
     Bool    immFlag;
 } DecodedInst deriving (Bits, Eq);
+
+typedef struct {
+    Opcode opcode;
+    RIndx dst;
+    Data data;
+    Addr addr;
+} ExecInst deriving(Bits, Eq);
 
 // LC-3 Opcodes
 //  - Arithmetic & Logic

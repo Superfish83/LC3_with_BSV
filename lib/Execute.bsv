@@ -1,6 +1,6 @@
 import LC3_Types::*;
 
-function ExecResult execute(DecodedInst dInst);
+function ExecResult execute(DecodedInst dInst, Data val1, Data val2);
     Maybe#(CpuToHost) c2h = tagged Invalid;
     Maybe#(Data) writeVal = tagged Invalid;
     Maybe#(MemRequest) memReq = tagged Invalid;
@@ -8,36 +8,36 @@ function ExecResult execute(DecodedInst dInst);
     case(dInst.opcode)
         // Arithmetic $ Logic Instructions
         opAdd: begin
-            writeVal = tagged Valid ( dInst.val1 + (dInst.immFlag ? dInst.val3 : dInst.val2) );
+            writeVal = tagged Valid ( val1 + (dInst.immFlag ? dInst.imm : val2) );
             //$display("source values: val1:%x, val2:%x", val1, val2);
         end
         opAnd: begin
-            writeVal = tagged Valid ( dInst.val1 & (dInst.immFlag ? dInst.val3 : dInst.val2) );
+            writeVal = tagged Valid ( val1 & (dInst.immFlag ? dInst.imm : val2) );
             //$display("source values: val1:%x, val2:%x", val1, val2);
         end
         opNot: begin
-            writeVal = tagged Valid ( ~dInst.val1 );
+            writeVal = tagged Valid ( ~val1 );
             //$display("source values: val1:%x", val1);
         end
 
         // Control Instructions
         opTrap: begin
-            case(dInst.val3[7:0])
-                tvOut:  c2h = tagged Valid CpuToHost {c2hType: TV_OUT, data: dInst.val1};
+            case(dInst.imm[7:0])
+                tvOut:  c2h = tagged Valid CpuToHost {c2hType: TV_OUT, data: val1};
                 tvHalt: c2h = tagged Valid CpuToHost {c2hType: TV_HALT, data: ?};
             endcase
         end
 
         // Load & Store Instructions
-        opLea: writeVal = tagged Valid dInst.val3;
+        opLea: writeVal = tagged Valid dInst.imm;
         opLd: memReq = tagged Valid MemRequest 
-                { writeMem: False, addr: dInst.val3, data: ?  };
+                { writeMem: False, addr: dInst.imm, data: ?  };
         opLdr: memReq = tagged Valid MemRequest 
-                { writeMem: False, addr: dInst.val1 + dInst.val3, data: ?  };
+                { writeMem: False, addr: val1 + dInst.imm, data: ?  };
         opSt: memReq = tagged Valid MemRequest 
-                { writeMem: True,  addr: dInst.val3, data: dInst.val2  };
+                { writeMem: True,  addr: dInst.imm, data: val2  };
         opStr: memReq = tagged Valid MemRequest 
-                { writeMem: True,  addr: dInst.val1 + dInst.val3, data: dInst.val2  };
+                { writeMem: True,  addr: val1 + dInst.imm, data: val2  };
 
     endcase
 

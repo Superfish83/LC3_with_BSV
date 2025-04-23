@@ -34,15 +34,15 @@ module mkLC3_Proc(LC3_Proc);
         // DEBUG: Check memory value at pc
         $display("Mem[pc=x%x]: %b", pc, iMem.req(pc));
 
-        // (2)  Decode
+        // (2)  Decode - decode
         DecodedInst dInst = ?;
         dInst = decode(inst, pc);
-        //      Read source registers
-        dInst.val1 = rFile.read1(dInst.rs1);
-        dInst.val2 = rFile.read2(dInst.rs2);
+        // (2)  Decode - fetch registers
+        let val1 = rFile.read1(dInst.rs1);
+        let val2 = rFile.read2(dInst.rs2);
 
         // (3)  Execute
-        let execResult = execute(dInst);
+        let execResult = execute(dInst, val1, val2);
         c2h <= execResult.c2h;
 
         // (4)  Memory operation
