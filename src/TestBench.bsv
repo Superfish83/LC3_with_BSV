@@ -1,7 +1,7 @@
 package TestBench;
 
 import LC3_Proc::*;
-import LC3_ProcTypes::*;
+import LC3_Types::*;
 
 typedef enum {Init, Run, End}
 TestState deriving (Bits, Eq);
@@ -22,16 +22,20 @@ module mkTestBench(Empty);
         // For debugging, uncomment this to check testbench clock cycle 
         //$display("[TestBench] cycle %d", cycle);
 
-        CpuToHost c2h <- proc.cpuToHost;
-        case (c2h.c2hType)
-            TV_OUT: begin
-                $display("CPU called OUT: x%x", c2h.data);
-            end
-            TV_HALT: begin
-                $display("CPU called HALT. Quitting...");
-                tState <= End;
-            end
-        endcase
+        let c2h <- proc.cpuToHost;
+        if(isValid(c2h)) begin
+            let c2hType = fromMaybe(?, c2h).c2hType;
+            let data = fromMaybe(?, c2h).data;
+            case (c2hType)
+                TV_OUT: begin
+                    $display("CPU called OUT: x%x", data);
+                end
+                TV_HALT: begin
+                    $display("CPU called HALT. Quitting...");
+                    tState <= End;
+                end
+            endcase
+        end
         cycle <= cycle + 1;
     endrule
 

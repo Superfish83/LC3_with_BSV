@@ -10,13 +10,13 @@ typedef enum {N, Z, P}
 BrCond deriving (Bits, Eq);
 typedef struct {
     Opcode  opcode;
-    BrCond  brCond;
-    Maybe#(RIndx)   rd;
-    Maybe#(RIndx)   rs1;
-    Maybe#(RIndx)   rs2;
-    Maybe#(Data)    val1; // value of source register 1
-    Maybe#(Data)    val2; // value of source register 2
-    Maybe#(Data)    val3; // value of immediate or offset
+    RIndx   rd;
+    RIndx   rs1;
+    RIndx   rs2;
+    Data    val1; // value of source register 1
+    Data    val2; // value of source register 2
+    Data    val3; // value of immediate or offset
+    Bool    immFlag;
 } DecodedInst deriving (Bits, Eq);
 
 // LC-3 Opcodes
@@ -39,12 +39,8 @@ Opcode opSti    = 4'b1011;
 Opcode opStr    = 4'b0111;
 Opcode opTrap   = 4'b1111;
 
-// LC3 convention addresses
-Addr  lc3_ORIG  = 16'h3000;
-Addr  lc3_END   = 16'hFDFF;
-
 // CPU to Host type
-typedef enum { NO_SIGNAL, TV_GETC, TV_OUT, TV_PUTS, TV_IN, TV_HALT }
+typedef enum { TV_GETC, TV_OUT, TV_PUTS, TV_IN, TV_HALT }
 CpuToHostType deriving (Bits, Eq);
 typedef struct {
     CpuToHostType c2hType;
@@ -53,8 +49,9 @@ typedef struct {
 
 // Execution Result
 typedef struct {
-    CpuToHost       c2h;
-    Maybe#(Data)    writeVal;
+    Maybe#(CpuToHost)   c2h;
+    Maybe#(Data)        writeVal;
+    Maybe#(MemRequest)  memReq;
 } ExecResult deriving (Bits, Eq);
 
 // TRAP Vectors
@@ -64,3 +61,23 @@ Trapvect tvOut  = 8'h21;
 Trapvect tvPuts = 8'h22;
 Trapvect tvIn   = 8'h23;
 Trapvect tvHalt = 8'h25;
+
+
+// Memory Request & Response Types
+typedef struct {
+    Bool    writeMem;
+    Addr    addr;
+    Data    data;
+} MemRequest deriving (Bits, Eq);
+
+typedef struct {
+    Data    data;
+} MemResponse deriving (Bits, Eq);
+
+
+// Instruction addresses
+Addr  lc3_IMem_ORIG  = 16'h3000;
+Addr  lc3_IMem_END   = 16'hfdff;
+// Data addresses
+Addr  lc3_DMem_ORIG  = 16'h3000; //16'hf000;
+Addr  lc3_DMem_END   = 16'hfdff; //16'hfdff;

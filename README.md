@@ -34,6 +34,6 @@ You may refer to the installation guide on our blog.
   
 ## Running a program
 
-Write your LC-3 machine code at /programs/program.vmh, and then run the testbench simulation.
+Write your LC-3 machine code at /memload/program.vmh, and then run the testbench simulation.
 
 Currently supported instructions: add, and, not, trap(x21, x25)

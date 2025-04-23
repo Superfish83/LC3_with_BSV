@@ -1,4 +1,4 @@
-import LC3_ProcTypes::*;
+import LC3_Types::*;
 import Vector::*;
 
 interface RFile;
