@@ -1,45 +1,73 @@
 import LC3_Types::*;
 
-function ExecResult execute(DecodedInst dInst, Data val1, Data val2);
-    Maybe#(CpuToHost) c2h = tagged Invalid;
-    Maybe#(Data) writeVal = tagged Invalid;
-    Maybe#(MemRequest) memReq = tagged Invalid;
+function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Addr pc);
+    ExecResult eResult = ?;
+    eResult.c2h = tagged Invalid;
+    eResult.writeVal = tagged Invalid;
+    eResult.memReq = tagged Invalid;
+    eResult.dst = dInst.rd;
+    eResult.addr = ?;
     
     case(dInst.opcode)
         // Arithmetic $ Logic Instructions
         opAdd: begin
-            writeVal = tagged Valid ( val1 + (dInst.immFlag ? dInst.imm : val2) );
+            eResult.writeVal = tagged Valid ( val1 + (dInst.immFlag ? dInst.imm : val2) );
             //$display("source values: val1:%x, val2:%x", val1, val2);
         end
         opAnd: begin
-            writeVal = tagged Valid ( val1 & (dInst.immFlag ? dInst.imm : val2) );
+            eResult.writeVal = tagged Valid ( val1 & (dInst.immFlag ? dInst.imm : val2) );
             //$display("source values: val1:%x, val2:%x", val1, val2);
         end
         opNot: begin
-            writeVal = tagged Valid ( ~val1 );
+            eResult.writeVal = tagged Valid ( ~val1 );
             //$display("source values: val1:%x", val1);
         end
 
         // Control Instructions
+        opBr: begin
+            Bit#(3) nzp;
+            nzp[0] = pack(val1 < 0);
+            nzp[1] = pack(val1 == 0);
+            nzp[2] = pack(val1 > 0);
+            eResult.brTaken = ((nzp & dInst.rd) > 0);
+            eResult.addr = (pc+1) + dInst.imm;
+            eResult.writeVal = tagged Invalid;
+        end
+
+        opJmp: begin
+            eResult.addr = val1;
+        end
+
+        opJsr: begin
+            case(dInst.immFlag)
+                True: eResult.addr = ((pc+1)+dInst.imm);
+                False: eResult.addr = val1;
+            endcase
+            eResult.brTaken = True;
+            eResult.writeVal = tagged Valid (pc + 1);
+        end
+
         opTrap: begin
             case(dInst.imm[7:0])
-                tvOut:  c2h = tagged Valid CpuToHost {c2hType: TV_OUT, data: val1};
-                tvHalt: c2h = tagged Valid CpuToHost {c2hType: TV_HALT, data: ?};
+                tvOut:  eResult.c2h = tagged Valid CpuToHost {c2hType: TV_OUT, data: val1};
+                tvHalt: eResult.c2h = tagged Valid CpuToHost {c2hType: TV_HALT, data: ?};
             endcase
         end
 
         // Load & Store Instructions
-        opLea: writeVal = tagged Valid dInst.imm;
-        opLd: memReq = tagged Valid MemRequest 
-                { writeMem: False, addr: dInst.imm, data: ?  };
-        opLdr: memReq = tagged Valid MemRequest 
-                { writeMem: False, addr: val1 + dInst.imm, data: ?  };
-        opSt: memReq = tagged Valid MemRequest 
-                { writeMem: True,  addr: dInst.imm, data: val2  };
-        opStr: memReq = tagged Valid MemRequest 
-                { writeMem: True,  addr: val1 + dInst.imm, data: val2  };
+        opLea: eResult.writeVal = tagged Valid ((pc+1) + dInst.imm);
+        opLd: eResult.memReq = tagged Valid MemRequest 
+                { writeMem: False, addr: ((pc+1) + dInst.imm), data: ?  };
+        opLdr: eResult.memReq = tagged Valid MemRequest 
+                { writeMem: False, addr: (val1 + dInst.imm), data: ?  };
+        opSt: eResult.memReq = tagged Valid MemRequest 
+                { writeMem: True,  addr: ((pc+1) + dInst.imm), data: val2  };
+        opStr: eResult.memReq = tagged Valid MemRequest 
+                { writeMem: True,  addr: (val1 + dInst.imm), data: val2  };
+
+        // TODO: Implement LDI, STI
 
     endcase
 
-    return ExecResult {c2h: c2h, writeVal: writeVal, memReq: memReq};
+    return eResult;
 endfunction

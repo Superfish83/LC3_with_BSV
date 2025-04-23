@@ -1,6 +1,6 @@
 import LC3_Types::*;
 
-function DecodedInst decode(Bit#(16) inst, Addr pc);
+function DecodedInst decode(Bit#(16) inst);
     let opcode   = inst[15:12];
     let rd       = inst[11:9];
     let rs1      = inst[8:6];
@@ -32,14 +32,14 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
 
         // Control Instructions
         opBr: begin
-            dInst.rd    = rd;  // the nzp value goes here.
-            dInst.rs1   = ?;  
+            dInst.rd    = rd;  // the nzp value goes here
+            dInst.rs1   = 3'b000;  // r0 for comparison 
             dInst.rs2   = ?;
             dInst.imm   = signExtend(offset9);
         end
 
         opJmp: begin
-            dInst.rd    = ?;
+            dInst.rd    = pack(3'b111);
             dInst.rs1   = rs1;  // JMP destination
             dInst.rs2   = ?;
             dInst.imm   = ?; 
@@ -71,7 +71,7 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
                     dInst.rs2 = rs1; // BaseR
                     dInst.imm = signExtend(offset6); // offset from BaseR
                 end
-                default: dInst.imm = (pc+1) + signExtend(offset9); // pc+1 + offset
+                default: dInst.imm = signExtend(offset9); // offset ... adding PC+1 is done on execution step.
             endcase
         end
         

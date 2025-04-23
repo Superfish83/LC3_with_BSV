@@ -17,13 +17,6 @@ typedef struct {
     Bool    immFlag;
 } DecodedInst deriving (Bits, Eq);
 
-typedef struct {
-    Opcode opcode;
-    RIndx dst;
-    Data data;
-    Addr addr;
-} ExecInst deriving(Bits, Eq);
-
 Bit#(3) nMask = 3'b100;
 Bit#(3) zMask = 3'b010;
 Bit#(3) pMask = 3'b001;
@@ -57,9 +50,16 @@ typedef struct {
 } CpuToHost deriving (Bits, Eq);
 
 // Execution Result
+// TODO: Separate memReq and eventually delete from ExecResult.
+// Memory request should be built in the memory section of the proc.
+// dst is needed to further pipline the cpu
+// Current ExecResult implementation will decide WB with the validity of writeVal.
 typedef struct {
     Maybe#(CpuToHost)   c2h;
+    RIndx               dst;
     Maybe#(Data)        writeVal;
+    Bool                brTaken;
+    Addr                addr;
     Maybe#(MemRequest)  memReq;
 } ExecResult deriving (Bits, Eq);
 
