@@ -59,11 +59,11 @@ function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Addr pc);
         opLd: eResult.memReq = tagged Valid MemRequest 
                 { writeMem: False, addr: ((pc+1) + dInst.imm), data: ?  };
         opLdr: eResult.memReq = tagged Valid MemRequest 
-                { writeMem: False, addr: (val1 + dInst.imm), data: ?  };
+                { writeMem: False, addr: (val2 + dInst.imm), data: ?  };
         opSt: eResult.memReq = tagged Valid MemRequest 
-                { writeMem: True,  addr: ((pc+1) + dInst.imm), data: val2  };
+                { writeMem: True,  addr: ((pc+1) + dInst.imm), data: val1  };
         opStr: eResult.memReq = tagged Valid MemRequest 
-                { writeMem: True,  addr: (val1 + dInst.imm), data: val2  };
+                { writeMem: True,  addr: (val2 + dInst.imm), data: val1  };
 
         // TODO: Implement LDI, STI
 
