@@ -12,6 +12,9 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
     
     let imm5     = inst[4:0];
     let trapv    = inst[7:0];
+    let n        = inst[11];
+    let z        = inst[10];
+    let p        = inst[9];
 
     // Decode result (initially undefined)
     DecodedInst dInst = ?;
@@ -24,24 +27,48 @@ function DecodedInst decode(Bit#(16) inst, Addr pc);
             dInst.rd    = rd;   // destination
             dInst.rs1   = rs1;  // source 1
             dInst.rs2   = rs2;  // source 2 (optional)
-            dInst.imm  = signExtend(imm5); // immediate (optional)
+            dInst.imm   = signExtend(imm5); // immediate (optional)
         end
 
         // Control Instructions
-        //      * todo: BR, JMP, JSR, JSRR
+        opJmp: begin
+            dInst.rd    = ?;
+            dInst.rs1   = rs1;  // JMP destination
+            dInst.rs2   = ?;
+            dInst.imm   = ?;
+        end
+
+        opJsr: begin
+            let jsrFlag = inst[11];  // 0: JSRR  1: JSR 
+            dInst.rd    = ?;
+            dInst.rs1   = jsrFlag==0 ? rs1 : ?;  // JMP destination
+            dInst.rs2   = ?;
+            dInst.imm   = jsrFlag==1 ? signExtend(offset11) : ?;
+            dInst.immFlag = (jsrFlag==1);  // Abuse of variable. (Caused by limitation of LC3)
+        end                                // Better to reorganize the decoding structure or use Maybe to check validity of rs1 in the execution stage.
+
+        opBr: begin
+            dInst.rd    = ?;
+            dInst.rs1   = rd;  // the nzp value goes here.
+            dInst.rs2   = ?;
+            dInst.imm   = signExtend(offset9);
+        end
+
         opTrap: begin
+            dInst.rd    = ?;
             dInst.rs1   = rs1;  // Always 0
+            dInst.rs2   = ?;
             dInst.imm[7:0] = extend(trapv); // Trapvect
         end
 
         // Load & Store Instructions
-        //      * todo: LDI, STI
-        opLd, opLdr, opLea, opSt, opStr: begin
+        // DR and SR is assigned to rs1, BaseR is assigned to rs2.
+        opLd, opLdr, opLdi, opLea, opSt, opStr, opSti: begin
             dInst.rd = rd;  // DR (for ld, ldr, lea)
-            dInst.rs2 = rd; // SR (for st, str)
-            case(opcode) // val3 <- desired memory address
+            dInst.rs1 = rd; // SR (for st, str)
+            case(opcode) // imm <- desired memory address
                 opLdr, opStr: begin
-                    dInst.rs1 = rs1; // BaseR
+                    dInst.rs2 = rs1; // BaseR
                     dInst.imm = signExtend(offset6); // offset from BaseR
                 end
                 default: dInst.imm = (pc+1) + signExtend(offset9); // pc+1 + offset
