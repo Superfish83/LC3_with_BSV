@@ -40,8 +40,12 @@ else
 
         mkdir -p ${vdir}
 
-        bsc -u -verilog -aggressive-conditions -bdir ${bdir} ./TestBench.bsv
+        bsc -u -verilog -aggressive-conditions -p ${libdir}:+ -bdir ${bdir} ./TestBench.bsv
         mv -v ./*.v ${vdir}
+        mv -v ${libdir}/*.v ${vdir}
+
+        primitives_v_dir="/opt/tools/bsc/latest/lib/Verilog";
+        cp ${primitives_v_dir}/RegFile.v ${vdir}
 
         echo "";
         echo "[build.sh] The complied .v files are at ./build/verilog."
