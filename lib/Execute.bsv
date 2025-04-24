@@ -10,18 +10,9 @@ function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Bit#(3) nzp
     
     case(dInst.opcode)
         // Arithmetic $ Logic Instructions
-        opAdd: begin
-            eResult.writeVal = tagged Valid ( val1 + (dInst.immFlag ? dInst.imm : val2) );
-            //$display("source values: val1:%x, val2:%x", val1, val2);
-        end
-        opAnd: begin
-            eResult.writeVal = tagged Valid ( val1 & (dInst.immFlag ? dInst.imm : val2) );
-            //$display("source values: val1:%x, val2:%x", val1, val2);
-        end
-        opNot: begin
-            eResult.writeVal = tagged Valid ( ~val1 );
-            //$display("source values: val1:%x", val1);
-        end
+        opAdd: eResult.writeVal = tagged Valid ( val1 + (dInst.immFlag ? dInst.imm : val2) );
+        opAnd: eResult.writeVal = tagged Valid ( val1 & (dInst.immFlag ? dInst.imm : val2) );
+        opNot: eResult.writeVal = tagged Valid ( ~val1 );
 
         // Control Instructions
         opBr: begin
