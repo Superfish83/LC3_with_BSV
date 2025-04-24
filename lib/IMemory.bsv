@@ -11,7 +11,7 @@ package IMemory;
 
 import RegFile::*;
 import LC3_Types::*;
-import MemoryTypes::*;
+// import MemoryTypes::*;  TODO: Add type definitions?
 
 interface IMemory;
     method Inst req(Addr pc);
