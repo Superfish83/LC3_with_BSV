@@ -21,8 +21,8 @@ endinterface: LC3_Proc
 module mkLC3_Proc(LC3_Proc);
     Reg#(Bool)      running <- mkReg(False);
     Reg#(Addr)      pc      <- mkRegU;
-    IMemory         iMem    <- mkIMemoryF("../memload/program.vmh");
-    DMemory         dMem    <- mkDMemoryF("../memload/program.vmh");
+    IMemory         iMem    <- mkIMemoryF("../programs/program.vmh");
+    DMemory         dMem    <- mkDMemoryF("../programs/progrma.vmh");
     RFile           rFile   <- mkRFile();
 
     Reg#(Maybe#(CpuToHost)) c2h <- mkReg(tagged Invalid);
