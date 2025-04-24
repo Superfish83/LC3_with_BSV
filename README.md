@@ -6,7 +6,10 @@
 This is a project made for studying computer architecture.
 
 Dept. of Computer Science and Engineering, Seoul National University. 
-Kim Yeonjun, Lim Junseo {kyjun0803@snu.ac.kr, zirajs@snu.ac.kr}
+
+Kim Yeonjun, Lim Junseo
+
+kyjun0803@snu.ac.kr, zirajs@snu.ac.kr
 
 ## Requirements
 
