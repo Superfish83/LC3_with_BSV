@@ -13,16 +13,18 @@ import Execute::*;
 
 
 interface LC3_Proc;
-    method Action hostToCpu(Addr startAddr);
+    method Action hostToCpu(Maybe#(Addr) startAddr, Maybe#(Data) sysIn);
     method ActionValue#(Maybe#(CpuToHost)) cpuToHost;
 endinterface: LC3_Proc
 
 (* synthesize *)
-module mkLC3_Proc(LC3_Proc);
+module mkLC3_Proc#(parameter String program_path, parameter String input_path,
+                    parameter Bool debugMode)(LC3_Proc);
     Reg#(Bool)      running <- mkReg(False);
     Reg#(Addr)      pc      <- mkRegU;
-    IMemory         iMem    <- mkIMemoryF("../memload/program.vmh");
-    DMemory         dMem    <- mkDMemoryF("../memload/program.vmh");
+    Reg#(Bit#(3))   nzp     <- mkReg(0);
+    IMemory         iMem    <- mkIMemoryF(program_path);
+    DMemory         dMem    <- mkDMemoryF(program_path);
     RFile           rFile   <- mkRFile();
 
     Reg#(Maybe#(CpuToHost)) c2h <- mkReg(tagged Invalid);
@@ -32,7 +34,7 @@ module mkLC3_Proc(LC3_Proc);
         let inst = iMem.req(pc);
 
         // DEBUG: Check memory value at pc
-        $display("Mem[pc=x%x]: %b", pc, iMem.req(pc));
+        if(debugMode) $display("Mem[pc=x%x]: %b", pc, iMem.req(pc));
 
         // (2)  Decode - decode
         DecodedInst dInst = ?;
@@ -42,8 +44,13 @@ module mkLC3_Proc(LC3_Proc);
         let val2 = rFile.read2(dInst.rs2);
 
         // (3)  Execute
-        let eResult = execute(dInst, val1, val2, pc);
+        let eResult = execute(dInst, val1, val2, nzp, pc);
         c2h <= eResult.c2h;
+        if(isValid(eResult.c2h)) begin
+            case(fromMaybe(?, eResult.c2h).c2hType)
+                TV_IN, TV_GETC, TV_HALT: running <= False;
+            endcase
+        end
 
         // (4)  Memory operation
         if(isValid(eResult.memReq)) begin
@@ -54,15 +61,22 @@ module mkLC3_Proc(LC3_Proc);
 
         // (5)  Write back
         if(isValid(eResult.writeVal)) begin
-            rFile.write(dInst.rd, fromMaybe(?, eResult.writeVal));
+            let wVal = fromMaybe(?, eResult.writeVal);
+            rFile.write(dInst.rd, wVal);
+            // update NZP flag
+            if(wVal < 0)    nzp <= 3'b100;
+            if(wVal == 0)   nzp <= 3'b010;
+            if(wVal > 0)    nzp <= 3'b001;
         end
 
         // (6)  Update PC
-        pc <= pc + 1;
+        pc <= eResult.addr;
     endrule
 
-    method Action hostToCpu(Addr startAddr) if (!running);
-        pc <= startAddr;
+    method Action hostToCpu(Maybe#(Addr) startAddr, Maybe#(Data) sysIn) if (!running);
+        if (isValid(startAddr)) pc <= fromMaybe(?, startAddr);
+        if (isValid(sysIn)) rFile.write(pack(3'b000), fromMaybe(?, sysIn));
+        c2h <= tagged Invalid;
         running <= True;
     endmethod
     method ActionValue#(Maybe#(CpuToHost)) cpuToHost();

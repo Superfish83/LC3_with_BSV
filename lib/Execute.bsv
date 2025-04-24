@@ -1,12 +1,12 @@
 import LC3_Types::*;
 
-function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Addr pc);
+function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Bit#(3) nzp, Addr pc);
     ExecResult eResult = ?;
     eResult.c2h = tagged Invalid;
     eResult.writeVal = tagged Invalid;
     eResult.memReq = tagged Invalid;
     eResult.dst = dInst.rd;
-    eResult.addr = ?;
+    eResult.addr = pc+1;
     
     case(dInst.opcode)
         // Arithmetic $ Logic Instructions
@@ -25,12 +25,8 @@ function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Addr pc);
 
         // Control Instructions
         opBr: begin
-            Bit#(3) nzp;
-            nzp[0] = pack(val1 < 0);
-            nzp[1] = pack(val1 == 0);
-            nzp[2] = pack(val1 > 0);
-            eResult.brTaken = ((nzp & dInst.rd) != 0);  // check branching condition
-            eResult.addr = (pc+1) + dInst.imm;
+            let brTaken = ((nzp & dInst.rd) != 0);  // check branching condition
+            eResult.addr = (pc+1) + (brTaken ? dInst.imm : 0);
             eResult.writeVal = tagged Invalid;  // mark invalid
         end
 
@@ -49,7 +45,9 @@ function ExecResult execute(DecodedInst dInst, Data val1, Data val2, Addr pc);
 
         opTrap: begin
             case(dInst.imm[7:0])
+                tvIn:   eResult.c2h = tagged Valid CpuToHost {c2hType: TV_IN, data: ?};
                 tvOut:  eResult.c2h = tagged Valid CpuToHost {c2hType: TV_OUT, data: val1};
+                tvGetc: eResult.c2h = tagged Valid CpuToHost {c2hType: TV_GETC, data: ?};
                 tvHalt: eResult.c2h = tagged Valid CpuToHost {c2hType: TV_HALT, data: ?};
             endcase
         end

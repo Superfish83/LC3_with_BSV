@@ -27,10 +27,18 @@ module mkDMemFromFile#(parameter String file_name)(DMemory);
     endmethod
 endmodule: mkDMemFromFile
 
+// Dummy memory module (for circuit synthesis)
+module mkDMemDummy#(parameter String file_name)(DMemory);
+    method ActionValue#(MemResponse) req(MemRequest reqData);
+        return MemResponse {data: ?};
+    endmethod
+endmodule: mkDMemDummy
+
 (* synthesize *)
 // Make Memory File from vmh file, following LC-3 memory conventions
 module mkDMemoryF#(parameter String file_name)(DMemory);
     DMemory dMem <- mkDMemFromFile(file_name);
+    //DMemory dMem <- mkDMemDummy(file_name);
 
     method ActionValue#(MemResponse) req(MemRequest reqData);
         let res <- dMem.req(reqData);

@@ -25,10 +25,19 @@ module mkIMemFromFile#(parameter String file_name)(IMemory);
     endmethod
 endmodule: mkIMemFromFile
 
+// Dummy memory module (for circuit synthesis)
+module mkIMemDummy#(parameter String file_name)(IMemory);
+    method Inst req(Addr reqData);
+        Inst res = ?;
+        return res;
+    endmethod
+endmodule: mkIMemDummy
+
 (* synthesize *)
 // Make Memory File from vmh file, following LC-3 memory conventions
 module mkIMemoryF#(parameter String file_name)(IMemory);
     IMemory iMem <- mkIMemFromFile(file_name);
+    //IMemory iMem <- mkIMemDummy(file_name);
 
     method Inst req(Addr pc);
         return iMem.req(pc);
