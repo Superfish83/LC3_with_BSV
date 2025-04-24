@@ -34,27 +34,27 @@ module mkLC3_Proc(LC3_Proc);
         // DEBUG: Check memory value at pc
         $display("Mem[pc=x%x]: %b", pc, iMem.req(pc));
 
-        // (2)  Decode
+        // (2)  Decode - decode
         DecodedInst dInst = ?;
-        dInst = decode(inst, pc);
-        //      Read source registers
-        dInst.val1 = rFile.read1(dInst.rs1);
-        dInst.val2 = rFile.read2(dInst.rs2);
+        dInst = decode(inst);
+        // (2)  Decode - fetch registers
+        let val1 = rFile.read1(dInst.rs1);
+        let val2 = rFile.read2(dInst.rs2);
 
         // (3)  Execute
-        let execResult = execute(dInst);
-        c2h <= execResult.c2h;
+        let eResult = execute(dInst, val1, val2, pc);
+        c2h <= eResult.c2h;
 
         // (4)  Memory operation
-        if(isValid(execResult.memReq)) begin
-            let memReq = fromMaybe(?, execResult.memReq);
+        if(isValid(eResult.memReq)) begin
+            let memReq = fromMaybe(?, eResult.memReq);
             let res <- dMem.req(memReq);
-            if(!memReq.writeMem) execResult.writeVal = tagged Valid res.data;
+            if(!memReq.writeMem) eResult.writeVal = tagged Valid res.data;
         end
 
         // (5)  Write back
-        if(isValid(execResult.writeVal)) begin
-            rFile.write(dInst.rd, fromMaybe(?, execResult.writeVal));
+        if(isValid(eResult.writeVal)) begin
+            rFile.write(dInst.rd, fromMaybe(?, eResult.writeVal));
         end
 
         // (6)  Update PC

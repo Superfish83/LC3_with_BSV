@@ -40,8 +40,9 @@ else
 
         mkdir -p ${vdir}
 
-        bsc -u -verilog -aggressive-conditions -bdir ${bdir} ./TestBench.bsv
+        bsc -u -verilog -aggressive-conditions -bdir ${bdir} -p ${libdir}:+ ./TestBench.bsv
         mv -v ./*.v ${vdir}
+        mv -v ${libdir}/*.v ${vdir}
 
         echo "";
         echo "[build.sh] The complied .v files are at ./build/verilog."

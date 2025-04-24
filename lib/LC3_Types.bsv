@@ -6,18 +6,20 @@ typedef Bit#(16)    Data;
 typedef Bit#(16)    Inst;
 typedef Bit#(4)     Opcode;
 typedef Bit#(3)     RIndx;
-typedef enum {N, Z, P}
-BrCond deriving (Bits, Eq);
+// typedef enum {N, Z, P}       // nzp can appear multiple times. e.g. BRnz
+// BrCond deriving (Bits, Eq);  // not used
 typedef struct {
     Opcode  opcode;
     RIndx   rd;
     RIndx   rs1;
     RIndx   rs2;
-    Data    val1; // value of source register 1
-    Data    val2; // value of source register 2
-    Data    val3; // value of immediate or offset
+    Data    imm;
     Bool    immFlag;
 } DecodedInst deriving (Bits, Eq);
+
+Bit#(3) nMask = 3'b100;
+Bit#(3) zMask = 3'b010;
+Bit#(3) pMask = 3'b001;
 
 // LC-3 Opcodes
 //  - Arithmetic & Logic
@@ -48,9 +50,16 @@ typedef struct {
 } CpuToHost deriving (Bits, Eq);
 
 // Execution Result
+// TODO: Separate memReq and eventually delete from ExecResult.
+// Memory request should be built in the memory section of the proc.
+// dst is needed to further pipline the cpu
+// Current ExecResult implementation will decide WB with the validity of writeVal.
 typedef struct {
     Maybe#(CpuToHost)   c2h;
+    RIndx               dst;
     Maybe#(Data)        writeVal;
+    Bool                brTaken;
+    Addr                addr;
     Maybe#(MemRequest)  memReq;
 } ExecResult deriving (Bits, Eq);
 
