@@ -35,10 +35,13 @@ You may refer to the installation guide on our blog.
 ## Running a program
 
 LC-3 is a von Neuman model machine. The instructions and data share the same memory space.
+
 To run a program, write your LC-3 machine code at /programs/program.vmh, and then run the testbench simulation.
 
 Currently supported instructions:
 - add, and, not
 - br(n,z,p), jsr, jmp
 - ld, ldr, lea, st, str
-- trap(x21, x25)
+- trap(x20, x21, x22, x25)
+
+sti & ldi are currently not supported.
